@@ -16,3 +16,5 @@ cronjob:
     - echo "Start Command"
     - faust -A app worker -l info
     - echo "Complete Command"
+
+environments:S
