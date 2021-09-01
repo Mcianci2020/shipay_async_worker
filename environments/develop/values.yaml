@@ -9,7 +9,7 @@ image:
   command:
 
 cronjob:
-  enabled: false
+  enabled: true
   schedule: '0/1 * * *'
   command: ['/bin/bash', '-c']
   args:
