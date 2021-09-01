@@ -6,7 +6,6 @@ image:
   pullPolicy: IfNotPresent
   tag: latest
   repository: marcoscianci/shipay-worker
-  command:
 
 cronjob:
   enabled: true

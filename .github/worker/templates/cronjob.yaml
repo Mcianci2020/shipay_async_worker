@@ -11,8 +11,6 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
-          imagePullSecrets:
-            - name: {{ .Values.image.pullSecret }}
           containers:
           - name: {{ .Values.appName }}-cronjob
             image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -23,3 +21,4 @@ spec:
             env:
 {{ toYaml .Values.environments | indent 12 }}
 {{- end }}
+
