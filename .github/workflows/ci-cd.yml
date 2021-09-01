@@ -1,0 +1,141 @@
+name: Deploy Shipay Worker
+
+on:
+  push:
+    branches:
+    - develop
+
+jobs:
+
+  CI:
+    runs-on: ubuntu-latest
+    env: 
+      ANCHORE: true
+    
+    steps:
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Login Docker Hub
+        uses: docker/login-action@v1
+        with:
+          Username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and Push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true 
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.PROJECT }}:latest
+              
+      - name: Image Digest 
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: Scan Anchore Image
+        id: scan
+        uses: anchore/scan-action@v2
+        if: env.ANCHORE == 'true'
+        with:
+          image: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.PROJECT }}:latest
+          fail-build: false
+          acs-report-enable: true
+          debug: true
+
+      - name: Upload Anchore reports
+        if: env.ANCHORE == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: anchore-reports
+          path: ./anchore-reports/
+  
+  DEV:
+    runs-on: self-hosted
+    needs: CI 
+
+    steps:
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Check minikube status
+        run: minikube status
+      
+      - name: Deploy Minikube
+        env: 
+          DEPLOY_NAMESPACE: develop
+          HELM_PACKAGE: worker-v0.0.1.tgz
+          CONFIG_FILE: environments/develop/values.yaml
+        run: |
+          helm package ".github/worker"
+          echo ""       
+          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
+
+#  QAS:
+#    runs-on: self-hosted
+#    needs: DEV
+#
+#    steps:
+#
+#      - name: Checkout Repo
+#        uses: actions/checkout@v2
+#
+#      - name: Check minikube status
+#        run: minikube status
+#      
+#      - name: Deploy Minikube
+#        env: 
+#          DEPLOY_NAMESPACE: qas
+#          HELM_PACKAGE: worker-v0.0.1.tgz
+#          CONFIG_FILE: environments/qas/values.yaml
+#        run: |
+#          helm package ".github/worker"
+#          echo ""       
+#          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
+#        
+#  UAT:
+#    runs-on: self-hosted
+#    needs: QAS
+#
+#    steps:
+#
+#      - name: Checkout Repo
+#        uses: actions/checkout@v2
+#
+#      - name: Check minikube status
+#        run: minikube status
+#      
+#      - name: Deploy Minikube
+#        env: 
+#          DEPLOY_NAMESPACE: uat
+#          HELM_PACKAGE: worker-v0.0.1.tgz
+#          CONFIG_FILE: environments/uat/values.yaml
+#        run: |
+#          helm package ".github/worker"
+#          echo ""       
+#          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
+#
+#  PROD:
+#    runs-on: self-hosted
+#    needs: UAT
+#
+#    steps:
+#
+#      - name: Checkout Repo
+#        uses: actions/checkout@v2
+#
+#      - name: Check minikube status
+#        run: minikube status
+#      
+#      - name: Deploy Minikube
+#        env: 
+#          DEPLOY_NAMESPACE: uat
+#          HELM_PACKAGE: worker-v0.0.1.tgz
+#          CONFIG_FILE: environments/uat/values.yaml
+#        run: |
+#          helm package ".github/worker"
+#          echo ""       
+#          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE   
