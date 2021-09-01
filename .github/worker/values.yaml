@@ -1,0 +1,42 @@
+# Default value.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+appName: appname
+
+image:
+  pullPolicy: IfNotPresent
+  tag: e84f7fc0
+  repository: repository-domain/image-name
+  command:
+
+# cronjob Kubernetes
+cronjob:
+  enabled: false
+  schedule: '0/1 * * *'
+  command: ['/bin/bash', '-c']
+  args:
+    - echo "Start Command"
+    - faust -A app worker -l info
+    - echo "Complete Command"
+# You also can use helm ssm plugin to inject environments(https://github.com/codacy/helm-ssm/)
+
+ingress:
+  enabled: false
+  domain: "apirest-dev.shipay.test.org"
+
+hpa:
+  enabled: false
+  maxReplicas: 2
+  cpu: 70
+  memory:
+  requests:
+
+service:
+  type: ClusterIP
+  externalPort: 3000
+  internalPort: 3000
+
+environments:
+  

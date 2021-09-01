@@ -1,0 +1,4 @@
+apiVersion: v1
+description: A Helm chart for worker
+name: worker
+version: v0.0.1

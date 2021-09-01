@@ -1,0 +1,24 @@
+{{- if hasKey .Values "customCommand" -}}
+{{- if .Values.customCommand.enabled -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.appName }}-custom-command-{{ randAlphaNum 6 | lower }}
+  labels:
+    chart: {{ .Chart.Name }}
+    release: {{ .Release.Name }}
+spec:
+  restartPolicy: Never
+  imagePullSecrets:
+    - name: {{ .Values.image.pullSecret }}
+  containers:
+  - name: {{ .Values.appName }}-custom-command
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    imagePullPolicy: IfNotPresent
+    command: {{ toJson .Values.customCommand.command }}
+    args:
+{{ toYaml .Values.customCommand.args | indent 6 }}
+    env:
+{{ toYaml .Values.environments | indent 6 }}
+{{- end }}
+{{- end }}
