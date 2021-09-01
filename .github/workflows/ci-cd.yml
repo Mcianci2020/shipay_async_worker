@@ -132,7 +132,7 @@ jobs:
       
       - name: Deploy Minikube
         env: 
-          DEPLOY_NAMESPACE: uat
+          DEPLOY_NAMESPACE: prod
           HELM_PACKAGE: worker-v0.0.1.tgz
           CONFIG_FILE: environments/base/values.yaml
         run: |
