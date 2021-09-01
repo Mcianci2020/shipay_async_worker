@@ -1,0 +1,37 @@
+replicaCount: 1
+
+appName: worker
+
+image:
+  pullPolicy: IfNotPresent
+  tag: latest
+  repository: marcoscianci/shipay-worker
+  command:
+
+cronjob:
+  enabled: false
+  schedule: '0/1 * * *'
+  command: ['/bin/bash', '-c']
+  args:
+    - echo "Start Command"
+    - faust -A app worker -l info
+    - echo "Complete Command"
+
+ingress:
+  enabled: false
+  domain: ""
+
+hpa:
+  enabled: false
+  maxReplicas: 2
+  cpu: 70
+  memory:
+  requests:
+
+service:
+  type: ClusterIP
+  externalPort: 3000
+  internalPort: 3000
+
+environments:
+  
