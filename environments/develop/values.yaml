@@ -17,4 +17,4 @@ cronjob:
     - faust -A app worker -l info
     - echo "Complete Command"
 
-environments:S
+environments:
