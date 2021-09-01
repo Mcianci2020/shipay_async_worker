@@ -68,74 +68,74 @@ jobs:
         env: 
           DEPLOY_NAMESPACE: develop
           HELM_PACKAGE: worker-v0.0.1.tgz
-          CONFIG_FILE: environments/develop/values.yaml
+          CONFIG_FILE: environments/base/values.yaml
         run: |
           helm package ".github/worker"
           echo ""       
           helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
 
-#  QAS:
-#    runs-on: self-hosted
-#    needs: DEV
-#
-#    steps:
-#
-#      - name: Checkout Repo
-#        uses: actions/checkout@v2
-#
-#      - name: Check minikube status
-#        run: minikube status
-#      
-#      - name: Deploy Minikube
-#        env: 
-#          DEPLOY_NAMESPACE: qas
-#          HELM_PACKAGE: worker-v0.0.1.tgz
-#          CONFIG_FILE: environments/qas/values.yaml
-#        run: |
-#          helm package ".github/worker"
-#          echo ""       
-#          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
-#        
-#  UAT:
-#    runs-on: self-hosted
-#    needs: QAS
-#
-#    steps:
-#
-#      - name: Checkout Repo
-#        uses: actions/checkout@v2
-#
-#      - name: Check minikube status
-#        run: minikube status
-#      
-#      - name: Deploy Minikube
-#        env: 
-#          DEPLOY_NAMESPACE: uat
-#          HELM_PACKAGE: worker-v0.0.1.tgz
-#          CONFIG_FILE: environments/uat/values.yaml
-#        run: |
-#          helm package ".github/worker"
-#          echo ""       
-#          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
-#
-#  PROD:
-#    runs-on: self-hosted
-#    needs: UAT
-#
-#    steps:
-#
-#      - name: Checkout Repo
-#        uses: actions/checkout@v2
-#
-#      - name: Check minikube status
-#        run: minikube status
-#      
-#      - name: Deploy Minikube
-#        env: 
-#          DEPLOY_NAMESPACE: uat
-#          HELM_PACKAGE: worker-v0.0.1.tgz
-#          CONFIG_FILE: environments/uat/values.yaml
-#        run: |
-#          helm package ".github/worker"
-#          echo ""       
-#          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE   
+  QAS:
+    runs-on: self-hosted
+    needs: DEV
+
+    steps:
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Check minikube status
+        run: minikube status
+      
+      - name: Deploy Minikube
+        env: 
+          DEPLOY_NAMESPACE: qas
+          HELM_PACKAGE: worker-v0.0.1.tgz
+          CONFIG_FILE: environments/base/values.yaml
+        run: |
+          helm package ".github/worker"
+          echo ""       
+          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
+        
+  UAT:
+    runs-on: self-hosted
+    needs: QAS
+
+    steps:
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Check minikube status
+        run: minikube status
+      
+      - name: Deploy Minikube
+        env: 
+          DEPLOY_NAMESPACE: uat
+          HELM_PACKAGE: worker-v0.0.1.tgz
+          CONFIG_FILE: environments/base/values.yaml
+        run: |
+          helm package ".github/worker"
+          echo ""       
+          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE
+
+  PROD:
+    runs-on: self-hosted
+    needs: UAT
+
+    steps:
+
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Check minikube status
+        run: minikube status
+      
+      - name: Deploy Minikube
+        env: 
+          DEPLOY_NAMESPACE: uat
+          HELM_PACKAGE: worker-v0.0.1.tgz
+          CONFIG_FILE: environments/base/values.yaml
+        run: |
+          helm package ".github/worker"
+          echo ""       
+          helm upgrade --install worker $HELM_PACKAGE -n $DEPLOY_NAMESPACE -f $CONFIG_FILE   
